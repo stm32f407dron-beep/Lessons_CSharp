@@ -2,110 +2,65 @@
 //исполняемый класс
 public class Program
 {
-    private static Button button  = new Button(); // статическое поле
-    
-    public static void Main()
+
+    /*
+     * 
+     * Main объявлен как async Task → значит, внутри можно использовать await.
+
+       Вызов CalculateSumAsync(10, 20) возвращает объект Task<int>.
+
+       Оператор await «раскрывает» задачу и возвращает результат (int).
+
+       В итоге в переменной result хранится число 30.
+
+      📌 Сравнение способов ожидания
+      Способ	                             Что возвращает	                  Блокирует поток	Где использовать
+      await task	                         Результат (T)	                  ❌ Нет	UI, асинхронный код
+      task.Result	                         Результат (T)	                   ✅ Да	Консоль, тесты (но осторожно)
+      task.Wait()	                         void (только ждёт)	               ✅ Да	редко, в консоли
+      task.GetAwaiter().GetResult()	         Результат (T)                     ✅ Да	низкоуровневый доступ
+
+
+
+
+
+
+     * 
+     * 
+     * 
+     */
+
+
+
+
+    public static async Task Main()
     {
 
-        
-        // Подписываемся на событие Click через экземпляр
-        button.Click += Button_Click;
-       
+        int result = await CalculateSumAsync(10, 20);
+        Console.WriteLine($"Сумма: {result}");
 
-        // "Нажимаем" кнопку
-        button.Press();
-        
     }
-    // Оставляем нестатическим
-    public static void Button_Click(object sender, ButtonClickEventArgs e)
+
+
+    static async Task<int> CalculateSumAsync(int a, int b)
     {
-        Console.WriteLine($"Сообщение: {e.Message}, Время: {e.ClickTime}, Отправитель: {sender}");
-
-        if (button == sender) { Console.WriteLine($"button являеться sender"); } else {Console.WriteLine($"button не являеться sender"); }
-      
-
+        return await Task.Run(() => a + b);
     }
+
+
+
+
 }
 
 
 
 
-// класс Button — это источник событий. 
-public class Button
-{
-    // Делегат описывает метод-обработчик
-    public delegate void ClickEventHandler(object sender, ButtonClickEventArgs e);
-
-    // Событие, основанное на делегате
-    public event ClickEventHandler? Click;
-
-    // Метод, который "нажимает" кнопку
-    public void Press()
-    {
-        // Вместо EventArgs.Empty передаём свои данные
-        Click?.Invoke(this, new ButtonClickEventArgs());
-    }
-}
 
 
 
 
 
+//Task<int> sumTask = CalculateSumAsync(30, 40);
+//sumTask.Wait();
 
-// Класс ButtonClickEventArgs — это просто контейнер для данных события.
-public class ButtonClickEventArgs 
-{
-    public string Message { get; } = "Триггер";
-    public DateTime ClickTime { get; }
-
-    public ButtonClickEventArgs()
-    {
-       
-        ClickTime = DateTime.Now;
-    }
-}
-
-
-
-//Button — источник событий.
-
-//ButtonClickEventArgs — контейнер данных события.
-
-//Program.Button_Click — подписчик, который реагирует.
-
-//Вызов Press() инициирует событие, и управление передаётся подписчику.
-
-
-
-
-
-//🔎 Краткий механизм работы
-//Источник события — класс Button.
-
-//Он содержит событие Click.
-
-//В методе Press() вызывает Click?.Invoke(...).
-
-//Аргументы события — класс ButtonClickEventArgs.
-
-//Это контейнер с данными (сообщение, время).
-
-//Создаётся при вызове события и передаётся подписчику.
-
-//Подписчик — метод Button_Click в классе Program.
-
-//Подписывается на событие через button.Click += Button_Click;.
-
-//Получает уведомление, когда событие вызывается.
-
-//В параметрах получает sender (источник — объект Button) и e (данные события).
-
-//Исполняемый класс — Program.
-
-//Создаёт объект Button.
-
-//Подписывается на событие.
-
-//Вызывает Press(), что инициирует событие.
-
-
+//Console.WriteLine($"  {sumTask.Result}");
