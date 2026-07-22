@@ -13,7 +13,9 @@ public class Program
 
        В итоге в переменной result хранится число 30.
 
-      📌 Сравнение способов ожидания
+
+                             📌 Сравнение способов ожидания
+
       Способ	                             Что возвращает	                  Блокирует поток	Где использовать
       await task	                         Результат (T)	                  ❌ Нет	UI, асинхронный код
       task.Result	                         Результат (T)	                   ✅ Да	Консоль, тесты (но осторожно)
@@ -33,18 +35,26 @@ public class Program
 
 
 
-    public static async Task Main()
+    public static  Task Main()
     {
 
-        int result = await CalculateSumAsync(10, 20);
-        Console.WriteLine($"Сумма: {result}");
+        Task<int> sumTask =  CalculateSumAsync(10, 20);
+        Console.WriteLine($"Сумма: {sumTask.Result}");
+        // возвращаем завершённую задачу
+        return Task.CompletedTask;
 
     }
 
 
-    static async Task<int> CalculateSumAsync(int a, int b)
+    static  Task<int> CalculateSumAsync(int a, int b)
     {
-        return await Task.Run(() => a + b);
+        Func<int> func = delegate () { return a + b; };
+        //Task.Run — это метод, который запускает делегат (функцию) в отдельном потоке из пула потоков (ThreadPool).
+        //Он принимает делегат Action или Func<T> и возвращает объект Task или Task<T>.
+        // Внутри создаётся задача, которая выполняется асинхронно.
+        return  Task.Run(func);
+        //или так : return await Task.Run(delegate() { return a + b; });
+
     }
 
 
