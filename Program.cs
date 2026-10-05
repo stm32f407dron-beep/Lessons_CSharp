@@ -2,64 +2,44 @@
 //исполняемый класс
 public class Program
 {
-
-    /*
-     * 
-     * Main объявлен как async Task → значит, внутри можно использовать await.
-
-       Вызов CalculateSumAsync(10, 20) возвращает объект Task<int>.
-
-       Оператор await «раскрывает» задачу и возвращает результат (int).
-
-       В итоге в переменной result хранится число 30.
-
-
-                             📌 Сравнение способов ожидания
-
-      Способ	                             Что возвращает	                  Блокирует поток	Где использовать
-      await task	                         Результат (T)	                  ❌ Нет	UI, асинхронный код
-      task.Result	                         Результат (T)	                   ✅ Да	Консоль, тесты (но осторожно)
-      task.Wait()	                         void (только ждёт)	               ✅ Да	редко, в консоли
-      task.GetAwaiter().GetResult()	         Результат (T)                     ✅ Да	низкоуровневый доступ
-
-
-
-
-
-
-     * 
-     * 
-     * 
-     */
-
-
-
-
-    public static  Task Main()
+    public static void Main()
     {
+        // Создаём первую задачу вручную через конструктор Task.
+        // Внутри — задержка 1200 мс и вывод текста.
+        Task task = new Task(delegate
+        {
+            Task.Delay(1200).Wait(); // имитация работы
+            Console.WriteLine("Простая задача без результата");
+        });
 
-        Task<int> sumTask =  CalculateSumAsync(10, 20);
-        Console.WriteLine($"Сумма: {sumTask.Result}");
-        // возвращаем завершённую задачу
-        return Task.CompletedTask;
+        // Создаём вторую задачу, которая будет выполнять метод User.
+        Task task2 = new Task(User);
 
+        // Запускаем обе задачи параллельно.
+        task.Start();
+        task2.Start();
+
+        // Ждём завершения хотя бы одной задачи.
+        // Метод WaitAny вернёт индекс первой завершившейся задачи.
+        // ⚠️ Важно: основной поток НЕ будет ждать выполнения остальных задач.
+        // Они продолжат выполняться в фоне, но программа может завершиться,
+        // если не добавить дополнительное ожидание (например, WaitAll).
+        int finishedIndex = Task.WaitAny(task, task2);
+
+        // Выводим индекс завершившейся первой задачи.
+        Console.WriteLine($"задача завершен с индексом {finishedIndex}");
     }
 
-
-    static  Task<int> CalculateSumAsync(int a, int b)
+    // Метод User помечен атрибутом Obsolete.
+    // Это значит: компилятор выдаст предупреждение при использовании,
+    // но выполнение кода не блокируется (false = только предупреждение).
+    [Obsolete("Этот метод устарел и будет удален в будущих версиях", false)]
+    public static void User()
     {
-        Func<int> func = delegate () { return a + b; };
-        //Task.Run — это метод, который запускает делегат (функцию) в отдельном потоке из пула потоков (ThreadPool).
-        //Он принимает делегат Action или Func<T> и возвращает объект Task или Task<T>.
-        // Внутри создаётся задача, которая выполняется асинхронно.
-        return  Task.Run(func);
-        //или так : return await Task.Run(delegate() { return a + b; });
-
+        // Задержка 1100 мс — чуть быстрее, чем у первой задачи.
+        Task.Delay(1100).Wait();
+        Console.WriteLine("Задача пользователя task2");
     }
-
-
-
-
 }
 
 
@@ -69,8 +49,3 @@ public class Program
 
 
 
-
-//Task<int> sumTask = CalculateSumAsync(30, 40);
-//sumTask.Wait();
-
-//Console.WriteLine($"  {sumTask.Result}");
