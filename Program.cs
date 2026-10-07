@@ -1,50 +1,44 @@
 ﻿
 //исполняемый класс
+using System.Diagnostics;
+
 public class Program
 {
-    private static Button button  = new Button(); // статическое поле
+    private static Dictionary<string, int> dict = new();// статическое поле
     
     public static void Main()
     {
+        dict.Add("one", 1);
+        Console.WriteLine(dict["one"]); // Вывод: 1
+        dict["two"] = 2;
+        dict["three"] = 3;
+        Console.WriteLine(dict["two"]); // Вывод: 2
 
-        
-        // Подписываемся на событие Click через экземпляр
-        button.Click += Button_Click;
-       
+        Console.WriteLine( $"ключ three  c паролем {dict["three"]}"); // Вывод: 3
 
-        // "Нажимаем" кнопку
-        button.Press();
-        
+        if (dict.TryGetValue("one", out int value))
+        {
+            Console.WriteLine($"Ключ 'one' найден - {value}");
+        }
+
+        //работа с указателями
+        int x = 10;
+        Console.WriteLine($"Значение x до вызова Pointer: {x}");
+        Pointer(x);
+        Console.WriteLine($"Введите новое значение для x: {x}");
+        Pointer_out(out x);
+        Console.WriteLine($"Значение x после вызова Pointer_out: {x}");
+
+        if (dict.TryGetValue("two", out int oneValue)) {Console.WriteLine($"Ключ 'one' найден - {oneValue}"); }
+
+
     }
+
+    public static void Pointer(int y) { y = 5; }
+
+    public static void Pointer_out( out int y) { y = 15; }
     // Оставляем нестатическим
-    public static void Button_Click(object sender, ButtonClickEventArgs e)
-    {
-        Console.WriteLine($"Сообщение: {e.Message}, Время: {e.ClickTime}, Отправитель: {sender}");
 
-        if (button == sender) { Console.WriteLine($"button являеться sender"); } else {Console.WriteLine($"button не являеться sender"); }
-      
-
-    }
-}
-
-
-
-
-// класс Button — это источник событий. 
-public class Button
-{
-    // Делегат описывает метод-обработчик
-    public delegate void ClickEventHandler(object sender, ButtonClickEventArgs e);
-
-    // Событие, основанное на делегате
-    public event ClickEventHandler? Click;
-
-    // Метод, который "нажимает" кнопку
-    public void Press()
-    {
-        // Вместо EventArgs.Empty передаём свои данные
-        Click?.Invoke(this, new ButtonClickEventArgs());
-    }
 }
 
 
@@ -52,18 +46,11 @@ public class Button
 
 
 
-// Класс ButtonClickEventArgs — это просто контейнер для данных события.
-public class ButtonClickEventArgs 
-{
-    public string Message { get; } = "Триггер";
-    public DateTime ClickTime { get; }
 
-    public ButtonClickEventArgs()
-    {
-       
-        ClickTime = DateTime.Now;
-    }
-}
+
+
+
+
 
 
 
